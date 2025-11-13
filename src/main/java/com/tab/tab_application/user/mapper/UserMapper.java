@@ -3,7 +3,6 @@ package com.tab.tab_application.user.mapper;
 import com.tab.tab_application.user.dto.UserRequestDTO;
 import com.tab.tab_application.user.dto.UserResponseDTO;
 import com.tab.tab_application.user.model.UserModel;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Component;
 
 @Component
