@@ -19,7 +19,7 @@ public class FriendsController {
         this.friendsService = friendsService;
     }
 
-    @GetMapping("/user/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<List<FriendsResponseDTO>> getAllFriends(@PathVariable Long id) {
         return ResponseEntity.ok(friendsService.getFriendsList(id));
     }

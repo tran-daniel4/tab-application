@@ -13,7 +13,7 @@ public class UserMapper {
         UserResponseDTO dto = new UserResponseDTO();
         dto.setId(user.getId());
         dto.setName(user.getName());
-        dto.setEmail(user.getPhoneNumber());
+        dto.setEmail(user.getEmail());
         dto.setPhoneNumber(user.getPhoneNumber());
         return dto;
     }
