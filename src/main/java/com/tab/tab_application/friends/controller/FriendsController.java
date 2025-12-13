@@ -13,7 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/friends")
 public class FriendsController {
-    public final FriendsService friendsService;
+    private final FriendsService friendsService;
 
     public FriendsController (FriendsService friendsService) {
         this.friendsService = friendsService;
