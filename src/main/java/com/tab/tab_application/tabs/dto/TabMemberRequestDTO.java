@@ -12,7 +12,5 @@ import java.util.List;
 @Setter
 public class TabMemberRequestDTO  {
     private Long userId;
-    private BigDecimal amountOwed;
-    private boolean hasPaid;
     private List<String> itemsToPay;
 }

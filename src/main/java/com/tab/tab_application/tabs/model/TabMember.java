@@ -17,15 +17,16 @@ public class TabMember {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   @ManyToOne
-   private UserModel user;
+    @ManyToOne
+    private UserModel user;
 
-   private BigDecimal amountOwed;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal amountOwed;
 
-   private boolean hasPaid;
+    private boolean hasPaid;
 
-   @ElementCollection
-   private List<String> itemsToPay = new ArrayList<>();
+    @ElementCollection
+    private List<String> itemsToPay = new ArrayList<>();
 
     @ManyToOne
     private TabModel tab;

@@ -5,6 +5,7 @@ import com.tab.tab_application.tabs.mapper.TabInviteMapper;
 import com.tab.tab_application.tabs.mapper.TabMapper;
 import com.tab.tab_application.tabs.model.InviteStatus;
 import com.tab.tab_application.tabs.model.TabInvite;
+import com.tab.tab_application.tabs.model.TabMember;
 import com.tab.tab_application.tabs.model.TabModel;
 import com.tab.tab_application.tabs.repository.TabInviteRepository;
 import com.tab.tab_application.tabs.repository.TabRepository;
@@ -89,7 +90,11 @@ public class TabService {
 
     }
 
-//    public int splitPaymentEvenly() {
+//    public List<TabMemberResponseDTO> getMembersFromTab(Long tabId) {
+//
+//    }
+//
+//    public TabResponseDTO splitPaymentEvenly() {
 //
 //    }
 //
