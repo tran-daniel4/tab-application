@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,5 +31,7 @@ public class TabModel {
     @OneToMany(mappedBy = "tab", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TabMember> members;
 
+    @Column(nullable = false)
+    private BigDecimal tabAmount;
 
 }

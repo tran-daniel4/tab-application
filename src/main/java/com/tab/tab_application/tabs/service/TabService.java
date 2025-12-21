@@ -97,4 +97,9 @@ public class TabService {
 //
 //    }
 
+//    validation
+//    if (tabRequestDTO.getTabAmount().compareTo(BigDecimal.ZERO) <= 0) {
+//        throw new IllegalArgumentException("Tab amount must be greater than zero");
+//    }
+
 }
