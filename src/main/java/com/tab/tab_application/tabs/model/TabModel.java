@@ -31,7 +31,7 @@ public class TabModel {
     @OneToMany(mappedBy = "tab", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TabMember> members;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal tabAmount;
+    @OneToOne(mappedBy = "tab", cascade = CascadeType.ALL)
+    private Receipt receipt;
 
 }
