@@ -26,9 +26,15 @@ public class ReceiptModel {
     private List<ReceiptItemModel> items = new ArrayList<>();
 
     @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal subtotal = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tax = BigDecimal.ZERO;
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal tip = BigDecimal.ZERO;
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal total = BigDecimal.ZERO;
 
 }
