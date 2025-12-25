@@ -41,7 +41,7 @@ public class ReceiptService {
                     ReceiptItemModel item = new ReceiptItemModel();
                     item.setName(ReceiptItemRequestDTO.getName());
                     item.setPrice(ReceiptItemRequestDTO.getPrice());
-                    item.setReceipt(ReceiptItemRequestDTO.getReceipt());
+                    item.setReceipt(receipt);
                     return item;
                 })
                 .toList();
@@ -60,26 +60,26 @@ public class ReceiptService {
         return receiptMapper.toDTO(receipt);
     }
 
-//    ReceiptResponseDTO updateReceipt(Long receiptId, ReceiptRequestDTO request) {
-//        ReceiptModel receipt = receiptRepository.findById(receiptId)
-//                .orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
-//
-//        receipt.setTax(request.getTax());
-//        receipt.setTip(request.getTip());
-//
-//        receipt.getItems().clear();
-//        for (ReceiptItemRequestDTO itemDto : request.getItems()) {
-//            ReceiptItemModel item = receiptItemMapper.toEntity(itemDto);
-//            item.setReceipt(receipt);
-//            receipt.getItems().add(item);
-//        }
-//        calculateTotals(receipt);
-//
-//        receipt.getTab().setTabAmount(receipt.getTotal());
-//
-//        return receiptMapper.toDto(receipt);
-//
-//    }
+    ReceiptResponseDTO updateReceipt(Long receiptId, ReceiptRequestDTO request) {
+        ReceiptModel receipt = receiptRepository.findById(receiptId)
+                .orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
+
+        receipt.setTax(request.getTax());
+        receipt.setTip(request.getTip());
+
+        receipt.getItems().clear();
+        for (ReceiptItemRequestDTO itemDto : request.getItems()) {
+            ReceiptItemModel item = receiptItemMapper.toEntity(itemDto);
+            item.setReceipt(receipt);
+            receipt.getItems().add(item);
+        }
+        calculateTotals(receipt);
+
+        ReceiptModel updated = receiptRepository.save(receipt);
+
+        return receiptMapper.toDTO(updated);
+
+    }
 
     public void calculateTotals(ReceiptModel receipt) {
         BigDecimal subtotal = receipt.getItems().stream()

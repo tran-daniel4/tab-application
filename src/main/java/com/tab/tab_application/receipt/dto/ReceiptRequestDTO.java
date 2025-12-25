@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 public class ReceiptRequestDTO {
     @NotEmpty
-    private List<ReceiptItemModel> items;
+    private List<ReceiptItemRequestDTO> items;
 
     @NotNull
     @DecimalMin(value = "0.00")
