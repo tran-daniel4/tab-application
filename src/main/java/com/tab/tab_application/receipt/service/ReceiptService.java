@@ -60,12 +60,12 @@ public class ReceiptService {
         return receiptMapper.toDTO(receipt);
     }
 
-    ReceiptResponseDTO updateReceipt(Long receiptId, ReceiptRequestDTO request) {
+    public ReceiptResponseDTO updateReceipt(Long receiptId, ReceiptRequestDTO request) {
         ReceiptModel receipt = receiptRepository.findById(receiptId)
                 .orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
 
-        receipt.setTax(request.getTax());
-        receipt.setTip(request.getTip());
+        receipt.setTax(request.getTax() != null ? request.getTax() : BigDecimal.ZERO);
+        receipt.setTip(request.getTip() != null ? request.getTip() : BigDecimal.ZERO);
 
         receipt.getItems().clear();
         for (ReceiptItemRequestDTO itemDto : request.getItems()) {
@@ -82,10 +82,12 @@ public class ReceiptService {
     }
 
     public void calculateTotals(ReceiptModel receipt) {
-        BigDecimal subtotal = receipt.getItems().stream()
+        BigDecimal subtotal = receipt.getItems() == null
+                ? BigDecimal.ZERO
+                : receipt.getItems().stream()
                 .map((ReceiptItemModel::getPrice))
-                        .filter(Objects::nonNull)
-                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         receipt.setSubtotal(subtotal);
 
@@ -108,9 +110,44 @@ public class ReceiptService {
 //
 //    }
 //
-//    public void validateReceipt(Receipt receipt) {
-//
-//    }
+    public void validateReceipt(ReceiptRequestDTO requestDTO) {
+        if (requestDTO == null) {
+            throw new IllegalArgumentException("Receipt request cannot be null");
+        }
+
+        if (requestDTO.getItems() == null || requestDTO.getItems().isEmpty()) {
+            throw new IllegalArgumentException("Receipt must contain at least one item");
+        }
+
+        // tax/tip are allowed to be null (you default them), but if present must be >= 0
+        if (requestDTO.getTax() != null && requestDTO.getTax().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Tax cannot be negative");
+        }
+        if (requestDTO.getTip() != null && requestDTO.getTip().compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Tip cannot be negative");
+        }
+
+        for (int i = 0; i < requestDTO.getItems().size(); i++) {
+            ReceiptItemRequestDTO item = requestDTO.getItems().get(i);
+
+            if (item == null) {
+                throw new IllegalArgumentException("Receipt item at index " + i + " cannot be null");
+            }
+
+            String name = item.getName();
+            if (name == null || name.trim().isEmpty()) {
+                throw new IllegalArgumentException("Item name is required (index " + i + ")");
+            }
+
+            BigDecimal price = item.getPrice();
+            if (price == null) {
+                throw new IllegalArgumentException("Item price is required (index " + i + ")");
+            }
+            if (price.compareTo(BigDecimal.ZERO) <= 0) {
+                throw new IllegalArgumentException("Item price must be > 0 (index " + i + ")");
+            }
+        }
+    }
 
 
 }
