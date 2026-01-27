@@ -90,6 +90,23 @@ public class TabService {
 
     }
 
+    @Transactional
+    public List<TabResponseDTO> getTabsForUser(Long userId) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        return tabRepository.findTabsForUser(userId).stream()
+                .map(tabMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public TabResponseDTO getTabById(Long tabId) {
+        TabModel tab = tabRepository.findById(tabId)
+                .orElseThrow(() -> new IllegalArgumentException("Tab not found"));
+        return tabMapper.toDto(tab);
+    }
+
 //    public List<TabMemberResponseDTO> getMembersFromTab(Long tabId) {
 //
 //    }

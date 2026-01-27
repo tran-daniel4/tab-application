@@ -1,5 +1,6 @@
 package com.tab.tab_application.tabs.model;
 
+import com.tab.tab_application.receipt.model.ReceiptModel;
 import com.tab.tab_application.user.model.UserModel;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,11 +28,13 @@ public class TabModel {
     @Column
     private LocalDateTime dateCreated;
 
-    @Column
     @OneToMany(mappedBy = "tab", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TabMember> members;
 
-    @OneToOne(mappedBy = "tab", cascade = CascadeType.ALL)
-    private Receipt receipt;
+    @Column(precision = 19, scale = 2)
+    private BigDecimal tabAmount;
+
+    @OneToMany(mappedBy = "tab", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReceiptModel> receipt;
 
 }

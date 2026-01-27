@@ -1,8 +1,6 @@
 package com.tab.tab_application.tabs.dto;
 
 import com.tab.tab_application.tabs.model.InviteStatus;
-import com.tab.tab_application.tabs.model.TabModel;
-import com.tab.tab_application.user.model.UserModel;
 import lombok.Getter;
 import lombok.Setter;
 
