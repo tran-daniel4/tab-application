@@ -1,5 +1,6 @@
 package com.tab.tab_application.tabs.mapper;
 
+import com.tab.tab_application.receipt.model.ReceiptModel;
 import com.tab.tab_application.tabs.dto.TabMemberRequestDTO;
 import com.tab.tab_application.tabs.dto.TabMemberResponseDTO;
 import com.tab.tab_application.tabs.dto.TabRequestDTO;

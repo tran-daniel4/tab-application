@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/tabs")
@@ -20,7 +21,12 @@ public class TabReceiptController {
         this.receiptService = receiptService;
     }
 
-    @PostMapping("/{tabId}/receipt")
+    @GetMapping("/{tabId}/receipts")
+    public ResponseEntity<List<ReceiptResponseDTO>> getReceiptsForTab(@PathVariable Long tabId) {
+        return ResponseEntity.ok(receiptService.getReceiptsForTab(tabId));
+    }
+
+    @PostMapping("/{tabId}/receipts")
     public ResponseEntity<ReceiptResponseDTO> createReceiptForTab(
             @PathVariable Long tabId,
             @Valid @RequestBody ReceiptRequestDTO request
@@ -35,4 +41,5 @@ public class TabReceiptController {
 
         return ResponseEntity.created(location).body(created);
     }
+
 }

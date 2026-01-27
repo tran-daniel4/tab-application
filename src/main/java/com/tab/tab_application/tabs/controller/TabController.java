@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/tabs")
 public class TabController {
@@ -25,10 +27,21 @@ public class TabController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<TabResponseDTO>> getTabsForUser(@RequestParam Long userId) {
+        return ResponseEntity.ok(tabService.getTabsForUser(userId));
+    }
+
+    @GetMapping("/{tabId}")
+    public ResponseEntity<TabResponseDTO> getTabById(@PathVariable Long tabId) {
+        return ResponseEntity.ok(tabService.getTabById(tabId));
+    }
+
+
     @PostMapping("/{tabId}/invite")
     public ResponseEntity<TabInviteResponseDTO> inviteToTab(
             @PathVariable Long tabId,
-            @RequestParam Long inviterId, // this should not be in production
+            @RequestParam Long inviterId,
             @Valid @RequestBody TabInviteRequestDTO requestDTO
     ) {
         TabInviteResponseDTO response =
@@ -36,5 +49,7 @@ public class TabController {
 
         return ResponseEntity.ok(response);
     }
+
+
 
 }

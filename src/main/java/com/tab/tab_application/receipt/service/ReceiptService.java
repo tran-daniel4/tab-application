@@ -36,22 +36,15 @@ public class ReceiptService {
     @Transactional
     public ReceiptResponseDTO createReceipt(Long tabId, ReceiptRequestDTO request) {
         validateReceipt(request);
+
         TabModel tab = tabRepository.findById(tabId)
                 .orElseThrow(() -> new IllegalArgumentException("Tab not found"));
 
-        // REMOVE LATER AFTER MULTI RECEIPT IMPLEMENTATION
-        if (tab.getReceipt() != null) {
-            throw new IllegalStateException("This tab already has a receipt");
-        }
-
         ReceiptModel receipt = new ReceiptModel();
         receipt.setTab(tab);
-        receipt.setTax(
-                request.getTax() != null ? request.getTax() : BigDecimal.ZERO
-        );
-        receipt.setTip(
-                request.getTip() != null ? request.getTip() : BigDecimal.ZERO
-        );
+
+        receipt.setTax(request.getTax() != null ? request.getTax() : BigDecimal.ZERO);
+        receipt.setTip(request.getTip() != null ? request.getTip() : BigDecimal.ZERO);
 
         List<ReceiptItemModel> items = request.getItems().stream()
                 .map(itemDto -> {
@@ -62,10 +55,14 @@ public class ReceiptService {
                 .toList();
 
         receipt.setItems(items);
-        calculateTotals(receipt);
-        ReceiptModel saved = receiptRepository.save(receipt);
-        return receiptMapper.toDTO(saved);
 
+        calculateTotals(receipt);
+
+        ReceiptModel saved = receiptRepository.save(receipt);
+
+        syncTabAmount(tabId);
+
+        return receiptMapper.toDTO(saved);
     }
 
     @Transactional
@@ -73,6 +70,16 @@ public class ReceiptService {
         ReceiptModel receipt = receiptRepository.findById(receiptId)
                 .orElseThrow(() -> new IllegalArgumentException("Receipt not found"));
         return receiptMapper.toDTO(receipt);
+    }
+
+    @Transactional
+    public List<ReceiptResponseDTO> getReceiptsForTab(Long tabId) {
+        tabRepository.findById(tabId)
+                .orElseThrow(() -> new IllegalArgumentException("Tab not found"));
+
+        return receiptRepository.findByTab_Id(tabId).stream()
+                .map(receiptMapper::toDTO)
+                .toList();
     }
 
     @Transactional
@@ -92,7 +99,7 @@ public class ReceiptService {
         calculateTotals(receipt);
 
         ReceiptModel updated = receiptRepository.save(receipt);
-
+        syncTabAmount(updated.getTab().getId());
         return receiptMapper.toDTO(updated);
 
     }
@@ -117,6 +124,21 @@ public class ReceiptService {
         receipt.setTip(tip);
         receipt.setTotal(subtotal.add(tax).add(tip));
     }
+
+    @Transactional
+    public void syncTabAmount(Long tabId) {
+        TabModel tab = tabRepository.findById(tabId)
+                .orElseThrow(() -> new IllegalArgumentException("Tab not found"));
+
+        BigDecimal sum = receiptRepository.findByTab_Id(tabId).stream()
+                .map(ReceiptModel::getTotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        tab.setTabAmount(sum);
+        tabRepository.save(tab);
+    }
+
 //
 //    public ReceiptResponseDTO createReceiptFromOcr(OcrReceiptRequestDTO request) {
 //

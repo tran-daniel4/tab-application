@@ -18,8 +18,8 @@ public class ReceiptModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "tab_id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name="tab_id", nullable=false)
     private TabModel tab;
 
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
