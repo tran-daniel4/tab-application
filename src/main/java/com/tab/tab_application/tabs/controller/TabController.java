@@ -5,6 +5,7 @@ import com.tab.tab_application.tabs.dto.TabInviteResponseDTO;
 import com.tab.tab_application.tabs.dto.TabRequestDTO;
 import com.tab.tab_application.tabs.dto.TabResponseDTO;
 import com.tab.tab_application.tabs.service.TabService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class TabController {
     public ResponseEntity<TabInviteResponseDTO> inviteToTab(
             @PathVariable Long tabId,
             @RequestParam Long inviterId, // this should not be in production
-            @RequestBody TabInviteRequestDTO requestDTO
+            @Valid @RequestBody TabInviteRequestDTO requestDTO
     ) {
         TabInviteResponseDTO response =
                 tabService.addMemberToTab(tabId, inviterId, requestDTO);

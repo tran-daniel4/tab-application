@@ -11,25 +11,28 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/receipts")
-public class ReceiptController {
+@RequestMapping("/api/tabs")
+public class TabReceiptController {
 
     private final ReceiptService receiptService;
 
-    public ReceiptController(ReceiptService receiptService) {
+    public TabReceiptController(ReceiptService receiptService) {
         this.receiptService = receiptService;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ReceiptResponseDTO> getReceiptById(@PathVariable Long id) {
-        return ResponseEntity.ok(receiptService.getReceiptById(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ReceiptResponseDTO> updateReceipt(
-            @PathVariable Long id,
+    @PostMapping("/{tabId}/receipt")
+    public ResponseEntity<ReceiptResponseDTO> createReceiptForTab(
+            @PathVariable Long tabId,
             @Valid @RequestBody ReceiptRequestDTO request
     ) {
-        return ResponseEntity.ok(receiptService.updateReceipt(id, request));
+        ReceiptResponseDTO created = receiptService.createReceipt(tabId, request);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentContextPath()
+                .path("/api/receipts/{id}")
+                .buildAndExpand(created.getId())
+                .toUri();
+
+        return ResponseEntity.created(location).body(created);
     }
 }

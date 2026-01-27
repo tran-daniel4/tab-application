@@ -9,26 +9,43 @@ import com.tab.tab_application.receipt.mapper.ReceiptMapper;
 import com.tab.tab_application.receipt.model.ReceiptItemModel;
 import com.tab.tab_application.receipt.model.ReceiptModel;
 import com.tab.tab_application.receipt.repository.ReceiptRepository;
+import com.tab.tab_application.tabs.model.TabModel;
+import com.tab.tab_application.tabs.repository.TabRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
+@Service
 public class ReceiptService {
     public final ReceiptMapper receiptMapper;
     public final ReceiptItemMapper receiptItemMapper;
     public final ReceiptRepository receiptRepository;
+    public final TabRepository tabRepository;
 
-    public ReceiptService(ReceiptMapper receiptMapper, ReceiptItemMapper receiptItemMapper, ReceiptRepository receiptRepository) {
+    public ReceiptService(ReceiptMapper receiptMapper, ReceiptItemMapper receiptItemMapper,
+                          ReceiptRepository receiptRepository, TabRepository tabRepository) {
         this.receiptMapper = receiptMapper;
         this.receiptItemMapper = receiptItemMapper;
         this.receiptRepository = receiptRepository;
+        this.tabRepository = tabRepository;
     }
 
     @Transactional
-    public ReceiptResponseDTO createReceipt(ReceiptRequestDTO request) {
+    public ReceiptResponseDTO createReceipt(Long tabId, ReceiptRequestDTO request) {
+        validateReceipt(request);
+        TabModel tab = tabRepository.findById(tabId)
+                .orElseThrow(() -> new IllegalArgumentException("Tab not found"));
+
+        // REMOVE LATER AFTER MULTI RECEIPT IMPLEMENTATION
+        if (tab.getReceipt() != null) {
+            throw new IllegalStateException("This tab already has a receipt");
+        }
+
         ReceiptModel receipt = new ReceiptModel();
+        receipt.setTab(tab);
         receipt.setTax(
                 request.getTax() != null ? request.getTax() : BigDecimal.ZERO
         );
@@ -37,10 +54,8 @@ public class ReceiptService {
         );
 
         List<ReceiptItemModel> items = request.getItems().stream()
-                .map(ReceiptItemRequestDTO -> {
-                    ReceiptItemModel item = new ReceiptItemModel();
-                    item.setName(ReceiptItemRequestDTO.getName());
-                    item.setPrice(ReceiptItemRequestDTO.getPrice());
+                .map(itemDto -> {
+                    ReceiptItemModel item = receiptItemMapper.toEntity(itemDto);
                     item.setReceipt(receipt);
                     return item;
                 })
@@ -48,8 +63,8 @@ public class ReceiptService {
 
         receipt.setItems(items);
         calculateTotals(receipt);
-        receiptRepository.save(receipt);
-        return receiptMapper.toDTO(receipt);
+        ReceiptModel saved = receiptRepository.save(receipt);
+        return receiptMapper.toDTO(saved);
 
     }
 
@@ -60,6 +75,7 @@ public class ReceiptService {
         return receiptMapper.toDTO(receipt);
     }
 
+    @Transactional
     public ReceiptResponseDTO updateReceipt(Long receiptId, ReceiptRequestDTO request) {
         ReceiptModel receipt = receiptRepository.findById(receiptId)
                 .orElseThrow(() -> new IllegalArgumentException("Receipt not found"));

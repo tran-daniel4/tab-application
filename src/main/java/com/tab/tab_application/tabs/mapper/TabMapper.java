@@ -23,6 +23,7 @@ public class TabMapper {
         dto.setTabName(tab.getTabName());
         dto.setCreatedById(tab.getCreatedBy().getId());
         dto.setDateCreated(tab.getDateCreated());
+        dto.setTabAmount(tab.getTabAmount());
 
         List<TabMemberResponseDTO> memberResponses = new ArrayList<>();
         if (tab.getMembers() != null) {
@@ -46,6 +47,7 @@ public class TabMapper {
         tab.setTabName(dto.getTabName());
         tab.setCreatedBy(createdBy);
         tab.setDateCreated(LocalDateTime.now());
+        tab.setTabAmount(dto.getTabAmount());
 
         List<TabMember> members = new ArrayList<>();
         if (dto.getMembers() != null) {
