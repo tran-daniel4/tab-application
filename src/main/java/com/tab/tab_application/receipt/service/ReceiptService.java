@@ -1,7 +1,7 @@
 package com.tab.tab_application.receipt.service;
 
+import com.tab.tab_application.observability.metrics.BusinessMetrics;
 import com.tab.tab_application.receipt.dto.ReceiptItemRequestDTO;
-import com.tab.tab_application.receipt.dto.ReceiptItemResponseDTO;
 import com.tab.tab_application.receipt.dto.ReceiptRequestDTO;
 import com.tab.tab_application.receipt.dto.ReceiptResponseDTO;
 import com.tab.tab_application.receipt.mapper.ReceiptItemMapper;
@@ -11,8 +11,9 @@ import com.tab.tab_application.receipt.model.ReceiptModel;
 import com.tab.tab_application.receipt.repository.ReceiptRepository;
 import com.tab.tab_application.tabs.model.TabModel;
 import com.tab.tab_application.tabs.repository.TabRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -24,13 +25,16 @@ public class ReceiptService {
     public final ReceiptItemMapper receiptItemMapper;
     public final ReceiptRepository receiptRepository;
     public final TabRepository tabRepository;
+    public final BusinessMetrics businessMetrics;
 
     public ReceiptService(ReceiptMapper receiptMapper, ReceiptItemMapper receiptItemMapper,
-                          ReceiptRepository receiptRepository, TabRepository tabRepository) {
+                          ReceiptRepository receiptRepository, TabRepository tabRepository,
+                          BusinessMetrics businessMetrics) {
         this.receiptMapper = receiptMapper;
         this.receiptItemMapper = receiptItemMapper;
         this.receiptRepository = receiptRepository;
         this.tabRepository = tabRepository;
+        this.businessMetrics = businessMetrics;
     }
 
     @Transactional
@@ -59,7 +63,7 @@ public class ReceiptService {
         calculateTotals(receipt);
 
         ReceiptModel saved = receiptRepository.save(receipt);
-
+        businessMetrics.receiptCreated();
         syncTabAmount(tabId);
 
         return receiptMapper.toDTO(saved);

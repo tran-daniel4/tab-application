@@ -1,8 +1,23 @@
 spring:
   application:
     name: tab-application
-
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+logging:
+  pattern:
+    level: "%5p [trace=%X{trace_id:-} span=%X{span_id:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,loggers,env
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: tab-application

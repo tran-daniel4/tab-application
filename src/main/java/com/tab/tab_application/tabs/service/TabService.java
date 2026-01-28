@@ -1,19 +1,20 @@
 package com.tab.tab_application.tabs.service;
 
+import com.tab.tab_application.observability.metrics.BusinessMetrics;
 import com.tab.tab_application.tabs.dto.*;
 import com.tab.tab_application.tabs.mapper.TabInviteMapper;
 import com.tab.tab_application.tabs.mapper.TabMapper;
 import com.tab.tab_application.tabs.model.InviteStatus;
 import com.tab.tab_application.tabs.model.TabInvite;
-import com.tab.tab_application.tabs.model.TabMember;
 import com.tab.tab_application.tabs.model.TabModel;
 import com.tab.tab_application.tabs.repository.TabInviteRepository;
 import com.tab.tab_application.tabs.repository.TabRepository;
 import com.tab.tab_application.user.model.UserModel;
 import com.tab.tab_application.user.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,15 +25,17 @@ public class TabService {
     private final TabInviteRepository tabInviteRepository;
     private final TabMapper tabMapper;
     private final TabInviteMapper tabInviteMapper;
+    private final BusinessMetrics businessMetrics;
 
     public TabService(TabRepository tabRepository, UserRepository userRepository,
                       TabInviteRepository tabInviteRepository, TabMapper tabMapper,
-                      TabInviteMapper tabInviteMapper) {
+                      TabInviteMapper tabInviteMapper, BusinessMetrics businessMetrics) {
         this.tabRepository = tabRepository;
         this.userRepository = userRepository;
         this.tabInviteRepository = tabInviteRepository;
         this.tabMapper = tabMapper;
         this.tabInviteMapper = tabInviteMapper;
+        this.businessMetrics = businessMetrics;
     }
 
     @Transactional
@@ -52,6 +55,7 @@ public class TabService {
         TabModel tab = tabMapper.toEntity(tabRequestDTO, creator, memberUsers);
 
         tab = tabRepository.save(tab);
+        businessMetrics.tabCreated();
 
         return tabMapper.toDto(tab);
     }
@@ -83,8 +87,12 @@ public class TabService {
         invite.setTab(tab);
         invite.setInviter(inviter);
         invite.setInvitee(invitee);
+        invite.setStatus(InviteStatus.PENDING);
+        invite.setSentAt(LocalDateTime.now());
+        invite.setExpiresAt(LocalDateTime.now().plusDays(3));
 
         invite = tabInviteRepository.save(invite);
+        businessMetrics.inviteSent();
 
         return tabInviteMapper.toDto(invite);
 
